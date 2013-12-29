@@ -550,9 +550,24 @@ class RichPipe(val pipe : Pipe) extends java.io.Serializable with JoinAlgorithms
    def sampleWithReplacement(percent : Double, seed : Int) : Pipe = new Each(pipe, new SampleWithReplacement(percent, seed), Fields.ALL)
 
   /**
-   * Print all the tuples that pass to stdout
+   * Print tuples that pass to stdout.
+   * By default prints all tuples.
+   *
+   * @param printTupleEvery frequency at which tuple values will be printed. `1` means "print every tuple". Defaults to `1`.
+   * @param printFields if `true` will names of fields print every `printFieldsEvery` Tuples. Defaults to `false`.
+   * @param printFieldsEvery frequency at which field names will be printed. Defaults to `10`.
    */
-  def debug = new Each(pipe, new Debug())
+  def debug(printTupleEvery: Int = 1, printFields: Boolean = false, printFieldsEvery: Int = 10): Pipe = {
+    val debug = new Debug(printFields)
+    debug.setPrintTupleEvery(printTupleEvery)
+    debug.setPrintFieldsEvery(printFieldsEvery)
+    new Each(pipe, debug)
+  }
+
+  /**
+   * Print tuples that pass to stdout.
+   */
+  def debug: Pipe = debug()
 
   /**
    * Write all the tuples to the given source and return this Pipe
